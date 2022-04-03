@@ -13,12 +13,15 @@ import javafx.scene.shape.Polygon;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.Objects;
 
 
 public class App extends Application {
     static final int KEY_SIZE = 10;
     static final int BOARD_SIZE = 11;
     static Stage stage;
+    static MyButton buttons[][] = new MyButton[BOARD_SIZE +2][BOARD_SIZE +2];
+    static String gridColor[][] = new String[BOARD_SIZE +2][BOARD_SIZE +2];
     public class MyButton extends Button{
         MyButton(int i, int j, Polygon keyBackground, String buttonType){
             this.setOnAction((ActionEvent e) -> {
@@ -31,13 +34,13 @@ public class App extends Application {
             System.out.print(i);
             System.out.print(j);
             System.out.println("clicked");
-
-            return;
+            gridColor[i][j] = "blue";
+            draw();
         }
 
     }
     public class Hexagon extends Polygon{
-        Hexagon(int keySize){
+        Hexagon(int keySize, String newColor){
             Double[] points = new Double[12];
             for (int q = 0; q < 6; q++){
                 double x = Math.cos(Math.PI/3.0*q+Math.PI/6) * keySize;
@@ -46,31 +49,66 @@ public class App extends Application {
                 points[q*2+1] = y ;
             }
             this.getPoints().addAll(points);
-            this.setFill(Color.LIGHTGRAY);
+            if (newColor == "gray") {
+                this.setFill(Color.LIGHTGRAY);
+            }
+            else if (newColor == "blue"){
+                this.setFill(Color.BLUE);
+            }
+            else if (newColor == "red"){
+                this.setFill(Color.RED);
+            }
+            else{
+                this.setFill(Color.WHITE);
+            }
 
         }
     }
     public void draw(){
-        Button buttons[][];
-        Group g;
-        buttons = new Button[BOARD_SIZE +2][BOARD_SIZE +2];
-        g = new Group();
-
+        Group g = new Group();
         for(int i = 0; i < BOARD_SIZE +2; i++){
             HBox hBox;
             hBox = new HBox();
             for(int j = 0; j < BOARD_SIZE +2; j++) {
-                //if (i==0&&j==0||i==keySize+1||j==keySize+1){}
+                if (i==0&&j==0||i==BOARD_SIZE+1&&j==BOARD_SIZE+1){
+                    gridColor[i][j] = "white";
+                }
+                else if (j==0||j==BOARD_SIZE+1){
+                    gridColor[i][j] = "blue";
+                }
+                else if(i==0||i==BOARD_SIZE+1){
+                    gridColor[i][j] = "red";
+                }
                 int finalI = i;
                 int finalJ = j;
-                Polygon keyBackground = new Hexagon(KEY_SIZE);
-                buttons[i][j] = new MyButton(finalI, finalJ, keyBackground, "normalButton.css");
-                StackPane stack = new StackPane(keyBackground, buttons[i][j]);
+                Polygon keyBackground;
+                StackPane stack = new StackPane();
+                if (gridColor[i][j] == null){
+                    keyBackground = new Hexagon(KEY_SIZE, "gray");
+                    buttons[i][j] = new MyButton(finalI, finalJ, keyBackground, "normalButton.css");
+                    stack.getChildren().addAll(keyBackground, buttons[i][j]);
+                }
+                else if (gridColor[i][j] == "blue"){
+                    keyBackground = new Hexagon(KEY_SIZE, "blue");
+                    stack.getChildren().add(keyBackground);
+                }
+                else if (gridColor[i][j] == "red"){
+                    keyBackground = new Hexagon(KEY_SIZE, "red");
+                    stack.getChildren().add(keyBackground);
+                }
+                else{
+                    keyBackground = new Hexagon(KEY_SIZE, "white");
+                    buttons[i][j] = new MyButton(finalI, finalJ, keyBackground, "normalButton.css");
+                    stack.getChildren().addAll(keyBackground, buttons[i][j]);
+                }
                 hBox.getChildren().add(stack);
             }
             hBox.relocate(Math.pow(3.0, 1/2)/2* KEY_SIZE *i+i*4, 3.0/2* KEY_SIZE *i);
             g.getChildren().add(hBox);
         }
+        Button swapButton = new Button("SWAP");
+        swapButton.relocate(170, 210);
+        g.getChildren().add(swapButton);
         Scene scene = new Scene(g,0, 0);
         stage.setScene(scene);
         stage.show();
