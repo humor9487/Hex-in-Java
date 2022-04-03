@@ -20,8 +20,8 @@ public class App extends Application {
     static final int KEY_SIZE = 10;
     static final int BOARD_SIZE = 11;
     static Stage stage;
-    static MyButton buttons[][] = new MyButton[BOARD_SIZE +2][BOARD_SIZE +2];
-    static String gridColor[][] = new String[BOARD_SIZE +2][BOARD_SIZE +2];
+    static MyButton buttons[][] = new MyButton[BOARD_SIZE + 2][BOARD_SIZE + 3];
+    static String gridColor[][] = new String[BOARD_SIZE + 2][BOARD_SIZE + 3];
     public class MyButton extends Button{
         MyButton(int i, int j, Polygon keyBackground, String buttonType){
             this.setOnAction((ActionEvent e) -> {
@@ -66,11 +66,11 @@ public class App extends Application {
     }
     public void draw(){
         Group g = new Group();
-        for(int i = 0; i < BOARD_SIZE +2; i++){
+        for(int i = 0; i < BOARD_SIZE + 2; i++){
             HBox hBox;
             hBox = new HBox();
-            for(int j = 0; j < BOARD_SIZE +2; j++) {
-                if (i==0&&j==0||i==BOARD_SIZE+1&&j==BOARD_SIZE+1){
+            for(int j = 0; j < BOARD_SIZE + 3; j++) {
+                if (i==0&&j==0||i==BOARD_SIZE+1&&j==BOARD_SIZE+1||j==BOARD_SIZE+2){
                     gridColor[i][j] = "white";
                 }
                 else if (j==0||j==BOARD_SIZE+1){
