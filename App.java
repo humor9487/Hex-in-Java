@@ -16,10 +16,13 @@ import java.io.IOException;
 
 
 public class App extends Application {
+    static final int KEY_SIZE = 10;
+    static final int BOARD_SIZE = 11;
+    static Stage stage;
     public class MyButton extends Button{
-        MyButton(int finalI, int finalJ, Polygon keyBackground, String buttonType){
+        MyButton(int i, int j, Polygon keyBackground, String buttonType){
             this.setOnAction((ActionEvent e) -> {
-                onclick(finalI, finalJ);
+                onclick(i, j);
             });
             this.getStylesheets().add(getClass().getResource(buttonType).toExternalForm());
             this.setShape(keyBackground);
@@ -28,6 +31,7 @@ public class App extends Application {
             System.out.print(i);
             System.out.print(j);
             System.out.println("clicked");
+
             return;
         }
 
@@ -46,34 +50,38 @@ public class App extends Application {
 
         }
     }
-    @Override
-    public void start(Stage stage) throws IOException {
+    public void draw(){
+        Button buttons[][];
+        Group g;
+        buttons = new Button[BOARD_SIZE +2][BOARD_SIZE +2];
+        g = new Group();
 
-        stage.setTitle("HEX");
-        final int boardSize = 11;
-        Button buttons[][] = new Button[boardSize+2][boardSize+2];
-        final int keySize = 10;
-        Group g = new Group();
-        for(int i = 0; i < boardSize+2; i++){
+        for(int i = 0; i < BOARD_SIZE +2; i++){
             HBox hBox;
             hBox = new HBox();
-            for(int j = 0; j < boardSize+2; j++) {
+            for(int j = 0; j < BOARD_SIZE +2; j++) {
                 //if (i==0&&j==0||i==keySize+1||j==keySize+1){}
                 int finalI = i;
                 int finalJ = j;
-                Polygon keyBackground = new Hexagon(keySize);
+                Polygon keyBackground = new Hexagon(KEY_SIZE);
                 buttons[i][j] = new MyButton(finalI, finalJ, keyBackground, "normalButton.css");
                 StackPane stack = new StackPane(keyBackground, buttons[i][j]);
                 hBox.getChildren().add(stack);
             }
-            hBox.relocate(Math.pow(3.0, 1/2)/2*keySize*i+i*4, 3.0/2*keySize*i);
+            hBox.relocate(Math.pow(3.0, 1/2)/2* KEY_SIZE *i+i*4, 3.0/2* KEY_SIZE *i);
             g.getChildren().add(hBox);
         }
         Scene scene = new Scene(g,0, 0);
-        stage.setWidth(370); // 設定視窗的寬
-        stage.setHeight(280); // 設定視窗的高
         stage.setScene(scene);
         stage.show();
+    }
+    @Override
+    public void start(Stage primaryStage) throws IOException {
+        stage = primaryStage;
+        stage.setTitle("HEX");
+        stage.setWidth(370);
+        stage.setHeight(280);
+        draw();
     }
     public static void main(String[] args) {launch();}
 }
