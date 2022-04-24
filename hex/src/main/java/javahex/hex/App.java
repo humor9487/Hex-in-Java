@@ -13,70 +13,68 @@ import javafx.scene.shape.Polygon;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Objects;
+import java.util.Stack;
 
 
 public class App extends Application {
     //按鍵大小、棋盤大小
-    static final int KEY_SIZE = 10;
-    static final int BOARD_SIZE = 11;
+    static final int KEY_SIZE = 10, BOARD_SIZE = 11;
     static Stage stage;
-    static Group g;
+    static Group group;
     static Scene scene;
-    static Button[][] buttons = new Button[BOARD_SIZE + 2][BOARD_SIZE + 2];
-    static String[][] gridColor = new String[BOARD_SIZE + 2][BOARD_SIZE + 2];
+    static MyButton[][] buttons = new MyButton[BOARD_SIZE + 2][BOARD_SIZE + 2];
+    static int[][] board = new int[BOARD_SIZE + 2][BOARD_SIZE + 2];
     static Button swapButton;
     static int round = 0;
-    static int[] pos = new int[2];
+    static ArrayList<int[]> records = new ArrayList<>();
     static Polygon[][] keyBackground = new Polygon[BOARD_SIZE + 2][BOARD_SIZE + 2];
 
     public static void reinitialize(){
-        buttons = new Button[BOARD_SIZE + 2][BOARD_SIZE + 2];
-        gridColor = new String[BOARD_SIZE + 2][BOARD_SIZE + 2];
+        buttons = new MyButton[BOARD_SIZE + 2][BOARD_SIZE + 2];
         keyBackground = new Polygon[BOARD_SIZE + 2][BOARD_SIZE + 2];
         round = 0;
-        pos = new int[2];
+        records = new ArrayList<>();
     }
-    public class MyButton extends Button{
-        MyButton(int i, int j, Polygon keyBackground, String buttonType, boolean action){
-            //觸發事件
-            if (action) {
-                this.setOnAction((ActionEvent e) -> {
-                    onclick(i, j);
-                });
-            }else{
-                this.setOnAction(null);
-            }
+    public static class MyButton extends Button{
+        MyButton(Polygon keyBackground){
             //按鈕風格設定
-            this.getStylesheets().add(getClass().getResource(buttonType).toExternalForm());
+            this.getStylesheets().add(Objects.requireNonNull(getClass().getResource("normalButton.css")).toExternalForm());
             //按鈕形狀設定成六邊形
             this.setShape(keyBackground);
         }
-        private void onclick(int i, int j){
-            if (round==0){
-                swapButton.setDisable(false);
-            }else{
-                swapButton.setDisable(true);
-            }
-            String c = (round % 2 == 0)? "RED" : "BLUE";
-            System.out.printf("[%d, %d], %s\n", i, j, c);
-            pos[0] = i;
-            pos[1] = j;
-            if (round%2==1) {
-                gridColor[i][j] = "blue";
-                keyBackground[i][j].setFill(Color.BLUE);
-            }
-            else{
-                gridColor[i][j] = "red";
-                keyBackground[i][j].setFill(Color.RED);
-            }
-            buttons[i][j].setOnAction(null);
-            round++;
-            stage.show();
-        }
+        //觸發事件
+        public void enableOnClick(int i, int j) {
+            this.setOnAction((ActionEvent e) -> {
+                swapButton.setDisable(round != 0);
+                System.out.printf("[%d, %d], %s\n", i, j, (round % 2 == 0)? "RED" : "BLUE");
+                records.add(new int[]{i, j});
+                switch (round % 2) {
+                    case 0 -> {
+                        keyBackground[i][j].setFill(Color.RED);
+                        board[i][j] = 1;
+                        if (winner(0)) {
+                            System.out.println("Red is the winner");
+                        }
+                    }
+                    case 1 -> {
+                        keyBackground[i][j].setFill(Color.BLUE);
+                        board[i][j] = -1;
+                        if (winner(1)) {
+                            System.out.println("Blue is the winner");
+                        }
+                    }
+                }
 
+                buttons[i][j].setOnAction(null);
+                round++;
+                stage.show();
+            });
+        }
     }
-    public class Hexagon extends Polygon{
+
+    public static class Hexagon extends Polygon{
         Hexagon(String newColor){
             //按鈕背景的多邊形
             Double[] points = new Double[12];
@@ -89,87 +87,123 @@ public class App extends Application {
             }
             this.getPoints().addAll(points);
             //填色
-            if (Objects.equals(newColor, "gray")) {
-                this.setFill(Color.LIGHTGRAY);
-            }
-            else if (Objects.equals(newColor, "blue")){
-                this.setFill(Color.BLUE);
-            }
-            else if (Objects.equals(newColor, "red")){
-                this.setFill(Color.RED);
-            }
-            else{
-                this.setFill(Color.WHITE);
+            switch (newColor) {
+                case "gray" -> this.setFill(Color.LIGHTGRAY);
+                case "blue" -> this.setFill(Color.BLUE);
+                case "red" -> this.setFill(Color.RED);
+                default -> this.setFill(Color.WHITE);
             }
         }
     }
-    public void draw(){
+
+    public void drawDefault(){
         if (round == 0) {
-            g = new Group();
+            group = new Group();
             for (int i = 0; i < BOARD_SIZE + 2; i++) {
                 HBox hBox;
-                //每一列是一個hbox
+                //每一列是一個hBox
                 hBox = new HBox();
+
                 for (int j = 0; j < BOARD_SIZE + 2; j++) {
                     //填入邊界六邊形
                     StackPane stack = new StackPane();
-                    if (j == 0 || j == BOARD_SIZE + 1) {
-                        gridColor[i][j] = "blue";
-                        keyBackground[i][j] = new Hexagon(gridColor[i][j]);
-                        buttons[i][j] = new MyButton(i, j, keyBackground[i][j], "normalButton.css", false);
+                    boolean hasAction = false;
+                    if (i == 0 && j == 0 || i == BOARD_SIZE + 1 && j == BOARD_SIZE + 1) {
+                        keyBackground[i][j] = new Hexagon("white");
+                    } else if (j == 0 || j == BOARD_SIZE + 1) {
+                        keyBackground[i][j] = new Hexagon("blue");
                     } else if (i == 0 || i == BOARD_SIZE + 1) {
-                        gridColor[i][j] = "red";
-                        keyBackground[i][j] = new Hexagon(gridColor[i][j]);
-                        buttons[i][j] = new MyButton(i, j, keyBackground[i][j], "normalButton.css", false);
-                    }else{
+                        keyBackground[i][j] = new Hexagon("red");
+                    } else {
                         keyBackground[i][j] = new Hexagon("gray");
-                        buttons[i][j] = new MyButton(i, j, keyBackground[i][j], "normalButton.css", true);
+                        hasAction = true;
                     }
+                    buttons[i][j] = new MyButton(keyBackground[i][j]);
+                    if (hasAction) buttons[i][j].enableOnClick(i, j);
+
                     stack.getChildren().addAll(keyBackground[i][j], buttons[i][j]);
                     hBox.getChildren().add(stack);
                 }
-                hBox.relocate(Math.pow(3.0, 1 / 2) / 2 * KEY_SIZE * i + i * 4, 3.0 / 2 * KEY_SIZE * i);
-                g.getChildren().add(hBox);
+                hBox.relocate(Math.pow(3.0, 1/2) / 2 * KEY_SIZE * i + i * 4, 3.0 / 2 * KEY_SIZE * i);
+                group.getChildren().add(hBox);
             }
-            scene = new Scene(g,3, 3);
+            scene = new Scene(group,3, 3);
             stage.setScene(scene);
         }
+
         swapButton = new Button("SWAP");
         swapButton.relocate(BOARD_SIZE*KEY_SIZE*1.5, BOARD_SIZE*KEY_SIZE*1.9);
         swapButton.setOnAction((ActionEvent e) -> {
-            System.out.println("swap");
-            gridColor[pos[0]][pos[1]] = null;
-            keyBackground[pos[0]][pos[1]].setFill(Color.LIGHTGRAY);
-            buttons[pos[0]][pos[1]] = new MyButton(pos[0], pos[1],keyBackground[pos[0]][pos[1]], "normalButton.css" ,true);
-            gridColor[pos[1]][pos[0]] = "blue";
-            keyBackground[pos[1]][pos[0]].setFill(Color.BLUE);
-            buttons[pos[1]][pos[0]].setOnAction(null);
+            System.out.println("swapped");
+            int[] r = records.get(records.size() - 1);
+            keyBackground[r[0]][r[1]].setFill(Color.LIGHTGRAY);
+            keyBackground[r[1]][r[0]].setFill(Color.BLUE);
+            buttons[r[0]][r[1]].enableOnClick(r[0], r[1]);
+            buttons[r[1]][r[0]].setOnAction(null);
             swapButton.setDisable(true);
-            round--;
+            round++;
         });
         swapButton.setDisable(true);
-        g.getChildren().add(swapButton);
+        group.getChildren().add(swapButton);
+
         //投降按鈕
         Button concedeButton = new Button("CONCEDE");
         concedeButton.relocate(BOARD_SIZE*KEY_SIZE*1.5, BOARD_SIZE*KEY_SIZE*2.1);
         concedeButton.setOnAction((ActionEvent e) -> {
-            System.out.println("concede");
-            if (round%2==0){
-                System.out.println("Blue Win");
-            }
-            else{
-                System.out.println("Red Win");
+            switch (round % 2) {
+                case 0 -> System.out.println("Red concede\nBlue Win");
+                case 1 -> System.out.println("Blue concede\nRed Win");
             }
             reinitialize();
-            draw();
+            drawDefault();
         });
+        group.getChildren().add(concedeButton);
+
         //勝負判斷
         //
-        g.getChildren().add(concedeButton);
-
-
-
         stage.show();
+    }
+
+    public static boolean winner(int n) {
+        boolean[][] visited = new boolean[BOARD_SIZE + 2][BOARD_SIZE + 2];
+        Stack<int[]> stack;
+        stack = new Stack<>();
+        int x, y, t;
+        // 將n的處理一般化
+        t = (n==0)?1:-1;
+        for (int z = 1; z <= BOARD_SIZE; z++) { //原本沒判定邊最後一排
+            x = (n==0)?1:z;
+            y = (n==0)?z:1;
+            if (board[x][y] == t) {
+                visited[x][y] = true;
+                stack.push(new int[]{x, y});
+            }
+        }
+        if (stack.empty()) return false;
+        int[] curr = new int[]{stack.peek()[0], stack.peek()[1]};
+        // check the presence of neighbors and DFS
+        do {
+            // return true if having reached the bottom row
+            if (curr[n] == BOARD_SIZE) return true; // 0, 1替換成n
+            boolean hasNeighbor = false;
+
+            for (int i = 0; i < 6; i++) {
+                int A = (i == 0 || i == 1) ? -1 : (i == 2 || i == 5) ? 0 : 1;
+                int B = (i == 4 || i == 5) ? -1 : (i == 0 || i == 3) ? 0 : 1;
+                if (!visited[curr[0] + A][curr[1] + B] && board[curr[0] + A][curr[1] + B] == t) {
+                    hasNeighbor = true;
+                    visited[curr[0] + A][curr[1] + B] = true;
+                    stack.push(new int[]{curr[0] + A, curr[1] + B});
+                    break;
+                }
+            }
+            if (!hasNeighbor) {
+                if (stack.size() <= 1) return false;
+                stack.pop();
+            }
+            curr = new int[]{stack.peek()[0], stack.peek()[1]};
+        } while (!stack.empty());
+        return false;
     }
     @Override
     public void start(Stage primaryStage) throws IOException {
@@ -177,7 +211,7 @@ public class App extends Application {
         stage.setTitle("HEX");
         stage.setWidth(370);
         stage.setHeight(300);
-        draw();
+        drawDefault();
     }
     public static void main(String[] args) {launch();}
 }
