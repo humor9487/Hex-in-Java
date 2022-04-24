@@ -158,9 +158,6 @@ public class App extends Application {
             drawDefault();
         });
         group.getChildren().add(concedeButton);
-
-        //勝負判斷
-        //
         stage.show();
     }
 
@@ -171,7 +168,7 @@ public class App extends Application {
         int x, y, t;
         // 將n的處理一般化
         t = (n==0)?1:-1;
-        for (int z = 1; z <= BOARD_SIZE; z++) { //原本沒判定邊最後一排
+        for (int z = 1; z <= BOARD_SIZE; z++) {
             x = (n==0)?1:z;
             y = (n==0)?z:1;
             if (board[x][y] == t) {
