@@ -53,7 +53,7 @@ public class Hex {
                     stack.getChildren().addAll(keyBackground[i][j], buttons[i][j]);
                     hBox.getChildren().add(stack);
                 }
-                hBox.relocate(Math.pow(3.0, 1/2.0) / 2 * KEY_SIZE * i + i * 4, 3.0 / 2 * KEY_SIZE * i);
+                hBox.relocate(Math.pow(3.0, 1/2.0) / 2 * KEY_SIZE * i, 3.0 / 2 * KEY_SIZE * i);
                 group.getChildren().add(hBox);
             }
             scene = new Scene(group,3, 3);
