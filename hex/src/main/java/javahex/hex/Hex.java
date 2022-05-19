@@ -22,11 +22,13 @@ public class Hex {
     static int round = 0;
     static ArrayList<int[]> records = new ArrayList<>();
     static Polygon[][] keyBackground = new Polygon[BOARD_SIZE + 2][BOARD_SIZE + 2];
+    static boolean bombMode = true;
 
     // 按下空白才開始畫圖
     @FXML
     public void startHex(){
         if (round == 0) {
+            if(bombMode){new Bombs();}
             group = new Group();
             for (int i = 0; i < BOARD_SIZE + 2; i++) {
                 HBox hBox;

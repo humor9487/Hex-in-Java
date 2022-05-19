@@ -18,6 +18,9 @@ public class MyButton extends Button {
     //觸發事件
     public void enableOnClick(int i, int j) {
         this.setOnAction((ActionEvent e) -> {
+            int I = i;
+            int J = j;
+            Bombs.checkBomb(I, J);
             swapButton.setDisable(round != 0);
             System.out.printf("[%d, %d], %s\n", i, j, (round % 2 == 0)? "RED" : "BLUE");
             records.add(new int[]{i, j});
@@ -37,8 +40,7 @@ public class MyButton extends Button {
                     }
                 }
             }
-
-            buttons[i][j].setOnAction(null);
+            buttons[i][j].setDisable(false);
             round++;
             App.stage.show();
         });
