@@ -22,6 +22,7 @@ public class Hex {
     static int round = 0;
     static ArrayList<int[]> records = new ArrayList<>();
     static Polygon[][] keyBackground = new Polygon[BOARD_SIZE + 2][BOARD_SIZE + 2];
+    //此變數之後可能要置於主畫面方便使用者開關
     static boolean bombMode = true;
 
     // 按下空白才開始畫圖
