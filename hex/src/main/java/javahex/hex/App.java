@@ -18,10 +18,11 @@ public class App extends Application {
         stage = primaryStage;
         menuScene = new Scene(fxmlLoader.load());
         hexScene = new Scene(fxmlLoader2.load());
+
         stage.setTitle("HEX");
         stage.setScene(menuScene);
-        stage.setWidth(370);
-        stage.setHeight(300);
+        stage.setWidth(400);
+        stage.setHeight(330);
         stage.show();
     }
     public static void main(String[] args) {launch();}

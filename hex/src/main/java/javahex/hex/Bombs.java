@@ -16,8 +16,8 @@ class Bombs {
             bombs[i][1] = (ran % 11) + 1;
         }
         //debug用，可看炸彈位置
-        //for (int i = 0; i < AMOUNT; i++){
-        //    System.out.printf("%d, %d\n", bombs[i][0], bombs[i][1]);}
+        for (int i = 0; i < AMOUNT; i++){
+            System.out.printf("%d, %d\n", bombs[i][0], bombs[i][1]);}
     }
     public static void checkBomb(int x, int y){
         for (int i =0; i < AMOUNT; i++){
@@ -29,6 +29,7 @@ class Bombs {
         }
     }
     public static void exploding(int x, int y){
+        System.out.printf("在(%d, %d)的炸彈引爆了!\n", x, y);
         for (int i = 0; i < 6; i++) {
             int A = (i == 0 || i == 1) ? -1 : (i == 2 || i == 5) ? 0 : 1;
             int B = (i == 4 || i == 5) ? -1 : (i == 0 || i == 3) ? 0 : 1;

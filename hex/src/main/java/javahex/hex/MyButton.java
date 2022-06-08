@@ -20,7 +20,9 @@ public class MyButton extends Button {
         this.setOnAction((ActionEvent e) -> {
             int I = i;
             int J = j;
-            Bombs.checkBomb(I, J);
+            if (bombMode){
+                Bombs.checkBomb(I, J);
+            }
             swapButton.setDisable(round != 0);
             System.out.printf("[%d, %d], %s\n", i, j, (round % 2 == 0)? "RED" : "BLUE");
             records.add(new int[]{i, j});
@@ -40,7 +42,7 @@ public class MyButton extends Button {
                     }
                 }
             }
-            buttons[i][j].setDisable(false);
+            buttons[i][j].setDisable(true);
             round++;
             App.stage.show();
         });

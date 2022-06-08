@@ -12,6 +12,7 @@ import javafx.scene.shape.Polygon;
 import java.util.ArrayList;
 import java.util.Stack;
 
+
 public class Hex {
     static final int KEY_SIZE = 10, BOARD_SIZE = 11;
     static Group group;
@@ -22,14 +23,16 @@ public class Hex {
     static int round = 0;
     static ArrayList<int[]> records = new ArrayList<>();
     static Polygon[][] keyBackground = new Polygon[BOARD_SIZE + 2][BOARD_SIZE + 2];
-    //此變數之後可能要置於主畫面方便使用者開關
-    static boolean bombMode = true;
+    static boolean bombMode = false;
 
     // 按下空白才開始畫圖
     @FXML
     public void startHex(){
         if (round == 0) {
-            if(bombMode){new Bombs();}
+            if(bombMode){
+                new Bombs();
+                System.out.println("炸彈已成功埋設!");
+            }
             group = new Group();
             for (int i = 0; i < BOARD_SIZE + 2; i++) {
                 HBox hBox;
@@ -90,6 +93,14 @@ public class Hex {
             startHex(); // 可能有問題
         });
         group.getChildren().add(concedeButton);
+        Button backToMenu = new Button("backToMenu");
+        backToMenu.relocate(BOARD_SIZE*KEY_SIZE*1.5, BOARD_SIZE*KEY_SIZE*2.3);
+        backToMenu.setOnAction((ActionEvent e) -> {
+            System.out.println("back");
+            App.stage.setScene(javahex.hex.App.menuScene);
+        });
+        group.getChildren().add(backToMenu);
+
         App.stage.show();
     }
 
